@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "redtree0"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    namespace: "redtree0"
+    name: "redtree0-test-pv" 
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: "/opt/share/redtree0/test"
+      server: "192.168.99.20" 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: "redtree0"
+    name: "redtree0-test-pv"
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 10Mi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   namespace: "redtree0"
+   name: "redtree0-ide"
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+       app: ide
+    spec:
+        containers:
+          - name: dappide
+            image:  redtree941/jupyter
+            env:
+              - name: PASSWORD
+                value: "1234"
+            ports:
+                - containerPort: 8888
+                  hostPort : 10000
+            command: ["start-notebook.sh"]
+            args: ["--allow-root"]
+            volumeMounts:
+                      - mountPath: /home/jovyan/work
+                        name: "redtree0-test-v"
+        volumes:
+              - name: "redtree0-test-v" 
+                persistentVolumeClaim:
+                    claimName: "redtree0-test-pv"
