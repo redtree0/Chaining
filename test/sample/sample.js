@@ -63,13 +63,21 @@ const pod = await client.api.v1.namespaces('redtree0').pods.get('redtree0');
 		});
 }
 
+var spawn = require('child-process-promise').spawn;
 
 promise.then((result)=>{
 	console.log(result.output);
-const { spawn } = require('child_process');
-const child = spawn('kubectl', ['create', '-f', 'redtree0_template.yaml']);
-// use child.stdout.setEncoding('utf8'); if you want text chunks
+	spawn('kubectl', [' create', '-f', 'redtree0_template.yaml'], { capture: ['stdout', 'stderr']})
+		.then(function(result){
+			console.log(result.stdout.toString());
 	main()
+		})
+		.catch(function(err){
+			console.log(err);
+		});
+//const { spawn } = require('child_process');
+//const child = spawn('kubectl', ['create', '-f', 'redtree0_template.yaml']);
+// use child.stdout.setEncoding('utf8'); if you want text chunks
 }).catch((e)=>{
 	console.log(e);
 });
