@@ -1,0 +1,15 @@
+- name: run the playbook tasks on the localhost
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    variable_to_be_replaced: 'Hello world'
+    inline_variable: "{{ hello }}"
+  become: yes
+  tasks:
+    - name: print out the hostname of target
+      command: hostname
+
+    - name: Ansible Template Example
+      template:
+        src: hello_world.j2
+        dest: hello_world.txt

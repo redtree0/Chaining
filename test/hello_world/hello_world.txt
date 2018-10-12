@@ -1,0 +1,3 @@
+Hello world
+This line won't be changed
+Variable given as inline - test - :)
