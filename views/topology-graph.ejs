@@ -1,0 +1,144 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <title>Topology Graph Example</title>
+  <meta name="viewport" content="width=device-width">
+  <style>
+    @font-face {
+      font-family: 'FontAwesome';
+      src: url('bower_components/font-awesome/fonts/fontawesome-webfont.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'PatternFlyIcons-webfont';
+      src: url('bower_components/patternfly/dist/fonts/PatternFlyIcons-webfont.woff') format('woff');
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0px;
+      font-family: sans-serif;
+    }
+    kubernetes-topology-graph {
+      border: 40px solid lightgray;
+      position: fixed;
+      height: 100%;
+      width: 100%;
+    }
+    .controls {
+      position: absolute;
+      bottom: 60px;
+      left: 60px;
+      right: 60px;
+      background-color: lightgray;
+      padding: 0 10px;
+    }
+    #selected {
+      float: right;
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+  <link rel="stylesheet" href="stylesheets/topology-graph.css">
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/d3/d3.js"></script>
+  <script src="javascripts/topology-graph.js"></script>
+</head>
+<body ng-app="exampleApp">
+
+    <kubernetes-topology-graph items="data.items" relations="data.relations" kinds="kinds">
+    </kubernetes-topology-graph>
+
+    <div class="controls">
+       <label id="selected"></label>
+       <button ng-click="poke()">Poke</button>
+
+       <kubernetes-topology-icon kind="Pod">
+         <svg class="kube-topology">
+           <use xlink:href="#vertex-Pod" x="15" y="15"></use>
+         </svg>
+       </kubernetes-topology-icon>
+       <label>Pods</label>
+
+       <kubernetes-topology-icon kind="Service">
+         <svg class="kube-topology">
+           <use xlink:href="#vertex-Service" x="15" y="15"></use>
+         </svg>
+       </kubernetes-topology-icon>
+       <label>Services</label>
+
+       <kubernetes-topology-icon kind="Node">
+         <svg class="kube-topology">
+           <use xlink:href="#vertex-Node" x="15" y="15"></use>
+         </svg>
+       </kubernetes-topology-icon>
+       <label>Nodes</label>
+
+       <kubernetes-topology-icon kind="ReplicationController">
+         <svg class="kube-topology">
+           <use xlink:href="#vertex-ReplicationController" x="15" y="15"></use>
+         </svg>
+       </kubernetes-topology-icon>
+       <label>Replication Controllers</label>
+    </div>
+
+    <svg class="kube-topology" hidden>
+      <defs>
+        <g class="Node" id="vertex-Node">
+          <circle r="15" fill="#fff" stroke="#aaa"></circle>
+          <text y="7" fill="#636363" font-family="PatternFlyIcons-webfont" font-size="18px" text-anchor="middle">&#xe621;</text>
+        </g>
+        <g class="Pod" id="vertex-Pod">
+          <circle r="15" fill="#fff" stroke="#aaa"></circle>
+          <text y="5" x="0.5" fill="#1186C1" font-family="FontAwesome" font-size="16px" text-anchor="middle">&#xf1b3;</text>
+        </g>
+        <g class="Service" id="vertex-Service">
+          <circle r="15" fill="#fff" stroke="#aaa"></circle>
+          <text y="8" x="-2" fill="#ff7f0e" font-family="PatternFlyIcons-webfont" font-size="18px" text-anchor="middle">&#xe61e;</text>
+        </g>
+        <g class="ReplicationController" id="vertex-ReplicationController">
+          <circle r="15" fill="#fff" stroke="#aaa"></circle>
+          <text y="7.5" x="-1" fill="#9467bd" font-family="PatternFlyIcons-webfont" font-size="20px" text-anchor="middle">&#xe624;</text>
+        </g>
+      </defs>
+    </svg>
+
+    <script type="text/javascript">
+        var datasets = [];
+
+        function sink(dataset) {
+	   datasets.push(dataset);
+        }
+
+        angular.module('exampleApp', ['kubernetesUI'])
+	    .run(function($rootScope) {
+                var index = 0;
+                $rootScope.data = datasets[index];
+
+                $rootScope.kinds = {
+                  Pod: '#vertex-Pod',
+                  ReplicationController: '#vertex-ReplicationController',
+                  Node: '#vertex-Node',
+                  Service: '#vertex-Service',
+                };
+
+                $rootScope.poke = function() {
+                   index += 1;
+                   $rootScope.data = datasets[index % datasets.length];
+                };
+
+		$rootScope.$on("select", function(ev, item) {
+                   var text = "";
+                   if (item)
+                       text = "Selected: " + item.metadata.name;
+                   angular.element(document.getElementById("selected")).text(text);
+                });
+            });
+    </script>
+
+    <!-- JSONP data sets to load -->
+    <script src="scratch/data-set-1.jsonp"></script>
+    <!-- <script src="scratch/data-set-2.jsonp"></script> -->
+</body>
+</html>
