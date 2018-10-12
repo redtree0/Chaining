@@ -11,7 +11,7 @@ router.get('/test', function(req, res, next) {
 var controller = require('../controller');
 router.get('/k8s.jsonp', function(req, res, next) {
     controller.getListk8s((k8s)=>{
-      res.send('sink('+JSON.stringify(k8s)+')');
+      res.send('sink({"items":'+JSON.stringify(k8s)+'})');
     });
 });
 module.exports = router;
