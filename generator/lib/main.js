@@ -10,6 +10,7 @@ module.exports = function(option, callback){
 	var workspace = option.ws;
 	var stub = id + "-"+ workspace;
 	var port = option.port;
+	var pod_name = id + '-ide';
 	// var id = "redtree0";
 	// var workspace = "test";
 	// var stub = id + "-"+ workspace;
@@ -21,7 +22,7 @@ module.exports = function(option, callback){
 		'nfs_path' : '/opt/share/'+ id +'/' + workspace,
 		'nfs_master' : '192.168.99.20',
 		'namespace' : id,
-		'pod_name' : id +'-ide',
+		'pod_name' : pod_name,
 		'password' : '1234',
 		'hostPort' : port,
 		'file' : id + '_template.yaml'
@@ -31,13 +32,13 @@ module.exports = function(option, callback){
 	var run_playbook = Path.join(__dirname, 'playbook');
 	var command = new Ansible.Playbook().playbook(run_playbook)
 					.variables(env);
-	command.asSudo();
+	//command.asSudo();
 	// command.inventory('/etc/ansible/hosts')
 	var promise = command.exec();
 
 
 	var kong_config = {
-		url : 'http://localhost:8001'
+		url : 'http://192.168.99.20:8001'
 	}
 
 	let kong = new Kong(kong_config);
@@ -53,7 +54,7 @@ module.exports = function(option, callback){
 			// console.log(deployment.body.spec.template.spec.containers[0].ports[0]);
 			var port = (deployment.body.spec.template.spec.containers[0].ports[0].hostPort);
 			const pod = await client.api.v1.namespaces(id).pods.get(id);
-			// console.log(pod.body.items[0].status.hostIP)
+			console.log(pod.body.items[0].status.hostIP)
 			var host = (pod.body.items[0].status.hostIP)
 			
 			var api = {
@@ -65,11 +66,15 @@ module.exports = function(option, callback){
 		
 			//kong.addApi(api).then(data =>{
 			kong.updateOrCreateApi(api).then(data =>{
-				console.log(data);
+				//console.log(data);
 				callback({'status' : 'success'});
 			}).catch(err =>{
 				console.log(err);
-				callback({'status' : 'error'});
+				kong.updateApi(id, api).then(data=>{
+					callback({'status' : 'success'});
+				}).catch(err=>{
+					callback({'status' : 'error'});
+				});
 			});
 	}
 
@@ -78,13 +83,14 @@ module.exports = function(option, callback){
 	promise.then((result)=>{
 		//
 		//console.log(result.output);
-		return spawn('kubectl', ['create', '-f', env.file], { capture: ['stdout', 'stderr']})
+		var k8syaml = Path.join(__dirname, env.file);
+		return spawn('kubectl', ['create', '-f', k8syaml], { capture: ['stdout', 'stderr']})
 			.then(function(result){
 				console.log(result.stdout.toString());
 				setTimeout(()=>{
-					callback({})
-					// main(callback);
-				}, 5000);
+					//callback({})
+					 main(callback);
+				}, 8000);
 			})
 			.catch(function(err){
 				callback({status : 'error'})
