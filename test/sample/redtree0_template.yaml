@@ -2,21 +2,21 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-    name: "redtree0.ws" 
+    name: "redtree0pv" 
 spec:
     capacity:
        storage: 500Mi
     accessModes:
        - ReadWriteMany
     nfs:
-      path: "/opt/share/workspace"
+      path: "./dir"
       server: "192.168.99.20" 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
     namespace: "redtree0"
-    name: "redtree0.ws"
+    name: "redtree0pv"
 spec:
    accessModes:
      - ReadWriteMany
@@ -45,10 +45,13 @@ spec:
                 value: "1234"
             ports:
                 - containerPort: 8888
+                - hostPort : "10000"
+            command: ["start-notebook.sh"]
+            args: ["--NotebookApp.token=''"]
             volumeMounts:
                       - mountPath: /home/jovyan/work
-                        name: "redtree0.ws"
+                        name: "redtree0v"
         volumes:
-              - name: "redtree0.ws" 
+              - name: "redtree0v" 
                 persistentVolumeClaim:
-                    claimName: "redtree0.ws"
+                    claimName: "redtree0pv"

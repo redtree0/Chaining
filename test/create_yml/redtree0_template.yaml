@@ -45,6 +45,9 @@ spec:
                 value: "1234"
             ports:
                 - containerPort: 8888
+                - hostPort : "10000"
+            command: ["start-notebook.sh"]
+            args: ["--NotebookApp.token=''"]
             volumeMounts:
                       - mountPath: /home/jovyan/work
                         name: "redtree0ws"
