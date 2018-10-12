@@ -10,7 +10,7 @@ router.get('/test', function(req, res, next) {
 });
 var controller = require('../controller');
 router.get('/k8s', function(req, res, next) {
-    controller.main((k8s)=>{
+    controller.getListk8s((k8s)=>{
       res.json(k8s);
     });
 });

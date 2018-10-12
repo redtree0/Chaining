@@ -15,13 +15,15 @@ async function main(callback) {
     })
 	console.log(myns);
 	const promises = myns.map(getPod);
-    await Promise.all(promises).then(callback);
+    await Promise.all(promises).then((data)=>{
+        console.log(data);
+        callback(data)});
 
 }
 async function getPod(ns){
 
     var pod = await client.api.v1.namespaces(ns).pods.get();
-    console.log(pod.body.items[0].status)
+    // console.log(pod.body.items[0].status)
 	Promise.resolve(pod.body.items)
 }
 var controller = {};
