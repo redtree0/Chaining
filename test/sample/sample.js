@@ -4,6 +4,7 @@ var Ansible = require('node-ansible');
 var id = "redtree0";
 var workspace = "test";
 var stub = id + "-"+ workspace;
+var port = '10000';
 
 var env = {
 	'pv' : stub+'-pv',
@@ -13,7 +14,8 @@ var env = {
 	'namespace' : id,
 	'pod_name' : id +'-ide',
 	'password' : '1234',
-	'hostPort' : '10000'
+	'hostPort' : port,
+	'file' : id + '_template.yaml'
 }
 env.ansible_sudo_pass = "vagrant"
 
@@ -23,7 +25,6 @@ command.asSudo();
 command.inventory('/etc/ansible/hosts')
 var promise = command.exec();
 
-const rp          = require('request-promise');
 
 const Kong = require('@pixul/node-kong-api');
 var kong_config = {
@@ -56,7 +57,8 @@ const pod = await client.api.v1.namespaces('redtree0').pods.get('redtree0');
 			"upstream_url": "http://" + host + ":" + port
 		}
 	
-		kong.addApi(api).then(data =>{
+		//kong.addApi(api).then(data =>{
+		kong.updateOrCreateApi(api).then(data =>{
 			console.log(data);
 		}).catch(err =>{
 			console.log(err);
@@ -66,18 +68,18 @@ const pod = await client.api.v1.namespaces('redtree0').pods.get('redtree0');
 var spawn = require('child-process-promise').spawn;
 
 promise.then((result)=>{
-	console.log(result.output);
-	spawn('kubectl', [' create', '-f', 'redtree0_template.yaml'], { capture: ['stdout', 'stderr']})
+	//
+	//console.log(result.output);
+	return spawn('kubectl', ['create', '-f', env.file], { capture: ['stdout', 'stderr']})
 		.then(function(result){
 			console.log(result.stdout.toString());
-	main()
+			setTimeout(
+			main, 3000);
 		})
 		.catch(function(err){
 			console.log(err);
 		});
-//const { spawn } = require('child_process');
-//const child = spawn('kubectl', ['create', '-f', 'redtree0_template.yaml']);
-// use child.stdout.setEncoding('utf8'); if you want text chunks
+
 }).catch((e)=>{
 	console.log(e);
 });

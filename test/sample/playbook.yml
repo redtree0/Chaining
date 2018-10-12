@@ -15,6 +15,6 @@
     - name: Ansible Template Example
       template:
         src: template_ide.j2
-        dest: "{{ user }}_template.yaml"
+        dest: "{{ file }}"
         #- name: deploy user App
         #command: "kubectl create -f {{ user }}_template.yaml"
