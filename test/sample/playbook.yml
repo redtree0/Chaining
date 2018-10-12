@@ -6,6 +6,7 @@
   become: yes
   tasks:
     - name: Create directory
+      become: yes
       file:
         path: "{{ nfs_path }}"
         state: "directory"
@@ -15,5 +16,5 @@
       template:
         src: template_ide.j2
         dest: "{{ user }}_template.yaml"
-    - name: deploy user App
-      command: "kubectl create -f {{ user }}_template.yaml"
+        #- name: deploy user App
+        #command: "kubectl create -f {{ user }}_template.yaml"

@@ -11,7 +11,7 @@ var env = {
 	'password' : '1234',
 	'hostPort' : '10000'
 }
-env.ansible_sudo_pass = "1q2w3e!@#"
+env.ansible_sudo_pass = "vagrant"
 
 var command = new Ansible.Playbook().playbook('playbook')
 				.variables(env);

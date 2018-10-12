@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-    name: "redtree0ws" 
+    name: "redtree0pv" 
 spec:
     capacity:
        storage: 500Mi
@@ -16,7 +16,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
     namespace: "redtree0"
-    name: "redtree0ws"
+    name: "redtree0pv"
 spec:
    accessModes:
      - ReadWriteMany
@@ -50,8 +50,8 @@ spec:
             args: ["--NotebookApp.token=''"]
             volumeMounts:
                       - mountPath: /home/jovyan/work
-                        name: "redtree0ws"
+                        name: "redtree0v"
         volumes:
-              - name: "redtree0ws" 
+              - name: "redtree0v" 
                 persistentVolumeClaim:
-                    claimName: "redtree0ws"
+                    claimName: "redtree0pv"
