@@ -22,6 +22,7 @@ async function main() {
 	    return item.metadata.name
     })
 	console.log(myns);
+
 	const promises = myns.map(getPod);
 	await Promise.all(promises).then(function(val){
 		console.log(val);
@@ -31,8 +32,8 @@ async function main() {
 async function getPod(ns){
 
     var pod = await client.api.v1.namespaces(ns).pods.get();
-    console.log(pod.body.items[0].status)
-	Promise.resolve(pod)
+    //console.log(pod.body.items[0].status)
+return 	Promise.resolve(pod)
 }
 
 main()
