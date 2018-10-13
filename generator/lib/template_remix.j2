@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   namespace: "{{ namespace }}"
+   name: "{{ pod_name }}"
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+       app: ide
+    spec:
+        containers:
+          - name: remix-ide
+            image:  redtree941/remix
+            ports:
+                - containerPort: 8080
+                  hostPort : {{ hostPort }}
+            command: ["npm"]
+            args: ["start"]

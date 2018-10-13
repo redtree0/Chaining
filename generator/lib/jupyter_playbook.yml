@@ -1,0 +1,23 @@
+- name: run the playbook tasks on the localhost
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    user: "{{ namespace }}"
+  become: yes
+  tasks:
+    - name: Create directory
+      become: yes
+      file:
+        path: "{{ nfs_path }}"
+        state: "directory"
+        recurse: "yes"
+        owner: "vagrant"
+        group: "vagrant"
+        mode: "0777"
+
+    - name: Ansible Template Example
+      template:
+        src: template_jupyter.j2
+        dest: "{{ file }}"
+        #- name: deploy user App
+        #command: "kubectl create -f {{ user }}_template.yaml"
