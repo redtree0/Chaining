@@ -8,9 +8,11 @@ module.exports = function(option, callback){
 	console.log("onload")
 	var id = option.id;
 	var workspace = option.ws;
-	var stub = id + "-"+ workspace;
+	var app = option.app;
+	var stub = id + "-" + app + "-"+ workspace;
 	var port = option.port;
-	var pod_name = id + '-ide';
+	var pod_name = id + "-" + app+ '-ide';
+	
 	// var id = "redtree0";
 	// var workspace = "test";
 	// var stub = id + "-"+ workspace;
@@ -29,7 +31,7 @@ module.exports = function(option, callback){
 	}
 	env.ansible_sudo_pass = "1q2w3e!@#"
 	// console.log();
-	var run_playbook = Path.join(__dirname, 'playbook');
+	var run_playbook = Path.join(__dirname, app+'_playbook');
 	var command = new Ansible.Playbook().playbook(run_playbook)
 					.variables(env);
 	//command.asSudo();

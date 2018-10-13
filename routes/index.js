@@ -15,8 +15,17 @@ router.get('/k8s.jsonp', function(req, res, next) {
       res.send('sink({"items":'+JSON.stringify(k8s)+'})');
     });
 });
-router.post('/generate', function(req, res, next) {
+router.post('/generate/jupyter', function(req, res, next) {
   // res.json({});
+  req.body.app = 'jupyter'
+  require('../generator')(req.body, (data)=>{
+    res.json(data);
+  })
+});
+
+router.post('/generate/remix', function(req, res, next) {
+  // res.json({});
+  req.body.app = 'remix'
   require('../generator')(req.body, (data)=>{
     res.json(data);
   })
