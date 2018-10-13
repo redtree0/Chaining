@@ -13,15 +13,15 @@ async function main(callback) {
     myns = myns.map((item)=>{
 	    return item.metadata.name
     })
-	console.log(myns);
+	//console.log(myns);
 	const promises = myns.map(getPod);
     await Promise.all(promises).then((data)=>{
-        console.log(data);
+        //console.log(data);
         var data = fileter(data);
         callback(data)});
 
 }
-
+var key = ""
 function fileter(before){
     var data ={}
     before.forEach(v=>{
@@ -29,14 +29,18 @@ function fileter(before){
     
         json = v.items.reduce((json, value, key) => { json[key] = value; return json; }, {});
         delete v['items']
-        // console.log(json[0])
-        var tmp = json[0];
+
+	for(var i in json){
+        var tmp = json[i];
+		console.log(tmp)
         // tmp.kind = v.kind;
         tmp.kind = "Pod";
         tmp.apiVersion = v.apiVersion;
         // console.log(tmp.metadata.uid);
-        
-        data[tmp.metadata.uid] = tmp; 
+       	key = tmp.metadata.uid || key 
+        data[key] = tmp; 
+
+	}
     })
     return data;
 }
