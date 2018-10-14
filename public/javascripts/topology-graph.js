@@ -109,24 +109,64 @@
                 d.fixed = moved && d.x > 3 && d.x < (width - 3) && d.y >= 3 && d.y < (height - 3);
                 d3.select(this).classed("fixed", d.fixed);
             });
-
+	var flag = false;
         svg
             .on("dblclick", function() {
+		    console.log("dbl");
+		    flag = true;
+		    d3.select(d3.event.target)
+                .classed("fixed", false );
+                force.start();
                 svg.selectAll("g")
                     .classed("fixed", false)
-                    .each(function(d) { d.fixed = false; });
-                force.start();
+                    .each(function(d) {  d.fixed = false; });
+		    //redirect(d3.event.target)
+		//    console.log(this);
             })
             .on("click", function(ev) {
+		   // console.log(d3.event.target)
                 if (!d3.select(d3.event.target).datum()) {
 	            notify(null);
                 }
             });
+	function redirect(item){
+		console.log(item)
+		selection = item;
+
+	    let hostIp = "";
+	    let port = -1;
+	    let flag = false;
+		if(selection != null){
+	    if(selection.hasOwnProperty('kind')  ){
+		    if(selection.kind === 'Pod' ){
+		if(selection.hasOwnProperty('spec') && selection.spec.containers[0].ports[0].hostPort){
+			port = selection.spec.containers[0].ports[0].hostPort;
+			if(selection.hasOwnProperty('status')){
+			if(selection.status.hasOwnProperty('hostIP')){
+				hostIp = selection.status.hostIP;
+				flag = true;
+			    if(flag === true){
+
+	    			location.replace("http://" + hostIp + ":" + port)
+			    }
+			}
+			}
+		}
+	    }
+			}
+			}
+	}
 
         function select(item) {
 	    selection = item;
+	    console.log(item);
             svg.selectAll("g")
                 .classed("selected", function(d) { return d.item === item; });
+	    if(flag){
+		redirect(item);
+	    }
+		flag == false;
+
         }
 
         function adjust() {
@@ -155,7 +195,7 @@
 
             var added = vertices.enter().append("g")
                 .call(drag);
-
+	    //console.log("update");
             select(selection);
 
             force
