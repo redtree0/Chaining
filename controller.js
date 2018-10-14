@@ -23,6 +23,7 @@ console.log("callback")
 
 }
 var key = ""
+var relations = []
 function fileter(before){
     var data ={}
     before.forEach(v=>{
@@ -40,7 +41,12 @@ function fileter(before){
         // console.log(tmp.metadata.uid);
        	key = tmp.metadata.uid || key 
         data[key] = tmp; 
-
+		var link = { 
+			'target' : key,
+			'source' : data[key].spec.nodeName
+		}
+		relations.push(link);
+	
 	}
     })
     return data;
@@ -55,6 +61,7 @@ var controller = {};
 controller.getListk8s = function(callback){
     main(callback)
 }
+var nodeMap = new Map()
 async function node(callback) {
     const nodes = await client.apis.v1.nodes.get();
 
@@ -64,6 +71,7 @@ async function node(callback) {
 	data[key] = v    
         data[key].kind = "Node";
         data[key].apiVersion = nodes.body.apiVersion;
+	nodeMap.set(v.metadata.name, v.metadata.uid)
     })
     //console.log(data)
     callback(data)
@@ -75,14 +83,23 @@ function p(callback){
 		callback(resolve)	
 	})
 }
-async function all(res_callback){
+async function all(callback){
 var promises = [p(node), p(main)]
     return Promise.all(promises).then((data)=>{
-	    var result = Object.assign({},data[0], data[1]);
-	    console.log(result)
+	    var items = Object.assign({},data[0], data[1]);
+	    //console.log(result)
+	    relations = relations.map((obj)=>{
+		    obj.source = nodeMap.get(obj.source) 
+		    return obj
+	    });
+
+	    var result = {
+		'items' : items,
+		'relations' : relations
+	    }
 
 	    return result 
-    })	.then(res_callback)
+    })	.then(callback)
 	/*
     return new Promise((resolve, reject)=>{
         node((data)=>{resolve(data)})

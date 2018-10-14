@@ -24,7 +24,7 @@ router.get('/node.jsonp', function(req, res, next) {
 
 router.get('/all.jsonp', function(req, res, next) {
   controller.all((k8s)=>{
-    res.send('sink({"items":'+JSON.stringify(k8s)+'})');
+    res.send('sink('+JSON.stringify(k8s)+')');
   });
 });
 router.post('/generate/jupyter', function(req, res, next) {

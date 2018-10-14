@@ -12,6 +12,7 @@ async function main() {
 	data[key] = v    
     })
     console.log(nodes)
+    console.log(nodes.body.items[0].metadata.name)
     //console.log(data)
 }
 
