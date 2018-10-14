@@ -63,9 +63,22 @@ async function node() {
 	data[key] = v    
     })
     console.log(data)
+    callback(data)
+}
+
+async function all(callback){
+    return new Promise(()=>{
+        node(Promsie.resolve)
+    }).then((data)=>{
+        callback(data)
+    })
 }
 
 controller.getListNode = function(callback){
     node(callback)
+}
+
+controller.all = function(callback){
+    return all(callback)
 }
 module.exports = controller;
