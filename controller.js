@@ -54,4 +54,18 @@ var controller = {};
 controller.getListk8s = function(callback){
     main(callback)
 }
+async function node() {
+    const nodes = await client.apis.v1.nodes.get();
+
+    var data ={}
+    nodes.body.items.forEach(v=>{
+	var key = v.metadata.uid || key
+	data[key] = v    
+    })
+    console.log(data)
+}
+
+controller.getListNode = function(callback){
+    node(callback)
+}
 module.exports = controller;
