@@ -1,3 +1,9 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "{{ namespace }}"
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -13,7 +19,7 @@ spec:
     spec:
         containers:
           - name: remix-ide
-            image:  redtree941/remix
+            image:  redtree941/remix-ide
             ports:
                 - containerPort: 8080
                   hostPort : {{ hostPort }}
