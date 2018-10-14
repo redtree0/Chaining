@@ -13,11 +13,12 @@ async function main(callback) {
     myns = myns.map((item)=>{
 	    return item.metadata.name
     })
+console.log("callback")
 	//console.log(myns);
 	const promises = myns.map(getPod);
     await Promise.all(promises).then((data)=>{
-        //console.log(data);
         var data = fileter(data);
+        //console.log(data);
         callback(data)});
 
 }
@@ -32,7 +33,7 @@ function fileter(before){
 
 	for(var i in json){
         var tmp = json[i];
-		console.log(tmp)
+	//	console.log(tmp)
         // tmp.kind = v.kind;
         tmp.kind = "Pod";
         tmp.apiVersion = v.apiVersion;
@@ -54,24 +55,46 @@ var controller = {};
 controller.getListk8s = function(callback){
     main(callback)
 }
-async function node() {
+async function node(callback) {
     const nodes = await client.apis.v1.nodes.get();
 
     var data ={}
     nodes.body.items.forEach(v=>{
 	var key = v.metadata.uid || key
 	data[key] = v    
+        data[key].kind = "Node";
+        data[key].apiVersion = nodes.body.apiVersion;
     })
-    console.log(data)
+    //console.log(data)
     callback(data)
+		
 }
+function p(callback){
+	return new Promise(function(resolve, reject){
+		console.log(callback)
+		callback(resolve)	
+	})
+}
+async function all(res_callback){
+var promises = [p(node), p(main)]
+    return Promise.all(promises).then((data)=>{
+	    var result = Object.assign({},data[0], data[1]);
+	    console.log(result)
 
-async function all(callback){
-    return new Promise(()=>{
-        node(Promsie.resolve)
+	    return result 
+    })	.then(res_callback)
+	/*
+    return new Promise((resolve, reject)=>{
+        node((data)=>{resolve(data)})
     }).then((data)=>{
-        callback(data)
-    })
+        main((data)=>{ 
+		console.log(data)
+		console.log("mai")
+		resolve(data)})
+    }).then((data)=>{
+	callback(data)
+    });
+    */
 }
 
 controller.getListNode = function(callback){
@@ -79,6 +102,6 @@ controller.getListNode = function(callback){
 }
 
 controller.all = function(callback){
-    return all(callback)
+    all(callback)
 }
 module.exports = controller;
