@@ -1,13 +1,18 @@
 var express = require('express');
 var router = express.Router();
-// var generator = ;
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.render('index', {title : 'express'})
+router.get('/login', function(req, res, next) {
+  res.render('login', {title : 'Chaining'})
 });
-router.get('/test', function(req, res, next) {
-  res.render('topology-graph', {title : 'express'})
+router.get('/', function(req, res, next) {
+  res.redirect('/login');
+});
+router.get('/main', function(req, res, next) {
+  res.render('main', {title : 'Chaining'})
+});
+router.get('/graph', function(req, res, next) {
+  res.render('topology-graph', {title : 'Chaining'})
 });
 var controller = require('../controller');
 router.get('/k8s.jsonp', function(req, res, next) {
