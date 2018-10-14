@@ -6,34 +6,28 @@ const client = new Client({ config: config.fromKubeconfig(), version: '1.9' });
 async function main() {
     const nodes = await client.apis.v1.nodes.get();
 
-    console.log(nodes);
-    // // console.log(deployment.body.spec.template.spec.containers[0].ports[0]);
-    // //console.log(deployment.body.spec.template.spec.containers[0].ports[0].hostPort);
-    // const pod = await client.api.v1.namespaces('redtree0').pods.get('redtree0');
-    // //console.log(pod.body.items[0].status.hostIP)
-    // var ns = await client.api.v1.namespaces.get();
-    // //console.log(ns.body.items)
-    // var myns = ns.body.items.filter((item)=>{
-	//     return (item.metadata.name != 'kube-system' && item.metadata.name != 'kube-public')
-    // })
-	// //console.log(myns);
-    // myns = myns.map((item)=>{
-	//     return item.metadata.name
-    // })
-	// console.log(myns);
+    var data ={}
+    nodes.body.items.forEach(v=>{
 
-	// const promises = myns.map(getPod);
-	// await Promise.all(promises).then(function(val){
-	// 	console.log(val);
-	// });
+        json = Object.assign({}, v.items);
+    
+        json = v.items.reduce((json, value, key) => { json[key] = value; return json; }, {});
+        delete v['items']
+
+        for(var i in json){
+            var tmp = json[i];
+            console.log(tmp)
+            // tmp.kind = v.kind;
+            tmp.kind = "Node";
+            tmp.apiVersion = v.apiVersion;
+            tmp.metadata = v.metadata;
+            key = tmp.metadata.uid || key 
+            data[key] = tmp; 
+
+        }
+    })
 
 }
-// async function getPod(ns){
-
-//     var pod = await client.api.v1.namespaces(ns).pods.get();
-//     //console.log(pod.body.items[0].status)
-// return 	Promise.resolve(pod)
-// }
 
 main()
 
