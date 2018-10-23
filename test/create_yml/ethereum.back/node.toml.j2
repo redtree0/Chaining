@@ -1,0 +1,75 @@
+[Eth]
+NetworkId = "{{ Geth.networkId }}" 
+SyncMode = "fast"
+LightPeers = 20
+DatabaseCache = 128
+{% if Eth_Etherbase %}
+Etherbase = "{{ Eth_Etherbase }}"
+{% endif %}
+MinerGasPrice = 18000000000
+EnablePreimageRecording = false
+
+[Eth.Ethash]
+CacheDir = "ethash"
+CachesInMem = 2
+CachesOnDisk = 3
+DatasetDir = "/root/.ethash"
+DatasetsInMem = 1
+DatasetsOnDisk = 2
+PowMode = 0
+
+[Eth.TxPool]
+NoLocals = false
+Journal = "transactions.rlp"
+Rejournal = 3600000000000
+PriceLimit = 1
+PriceBump = 10
+AccountSlots = 16
+GlobalSlots = 4096
+AccountQueue = 64
+GlobalQueue = 1024
+Lifetime = 10800000000000
+
+[Eth.GPO]
+Blocks = 10
+Percentile = 50
+
+[Shh]
+MaxMessageSize = 1048576
+MinimumAcceptedPOW = 2e-01
+
+[Node]
+UserIdent = "{{ Node.UserIdent }}"
+DataDir = "{{ Node.DataDir }}"
+IPCPath = "{{ Node.DataDir }}/geth.ipc"
+HTTPHost = "0.0.0.0"
+HTTPPort = "{{ Node.Port }}"
+HTTPCors = ["*"]
+HTTPVirtualHosts = ["*"]
+HTTPModules = ["db", "eth", "net", "web3", "personal", "miner"]
+WSHost = "0.0.0.0"
+WSPort = "{{ Node.WsPort }}"
+WSModules = ["net", "web3", "eth", "shh"]
+
+[Node.P2P]
+MaxPeers = 25
+NoDiscovery = false
+{% if Geth['Network'] is defined  %}
+{% else %}
+BootstrapNodes = []
+BootstrapNodesV5 = []
+{% endif %}
+StaticNodes = []
+TrustedNodes = []
+ListenAddr = ":{{ Node.DiscoveryAddr }}"
+EnableMsgEvents = false
+
+{% if Dashboard is defined %}
+  [Dashboard]
+  Host = "0.0.0.0"
+  Port =  {{ Dashboard_Port }}
+  Refresh = {{ Dashboard_Refresh }}
+{% else %}
+  
+{% endif %}
+

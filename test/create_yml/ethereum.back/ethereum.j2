@@ -1,0 +1,14 @@
+{% if config['keystore'] is defined %}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keystore-config
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: keystore-config
+data:
+    {{ config['keystore']['name'] }} : |-
+        {{ include_file("keystore{{ config['keystore']['name'] }}") }}
+{% endif %}
