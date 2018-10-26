@@ -35,15 +35,17 @@
                 title: 'Go to the Page',
                 action: function(element, d, i) {
                     
-                    
-                    console.log(element);
                     redirect(element.item);
                 }
             },
             {
                 title: 'Exec the container',
                 action: function(element, d, i) {
+                    let $modal = $("#myModal");
+                    setExecConfig(element.item, $modal);
                     
+                    $modal.modal();
+                    console.log(element);
                     
                 }
             }
@@ -150,7 +152,15 @@
 	            notify(null);
                 }
             })
-           
+    function setExecConfig(item, $modal){
+        console.log(item.metadata.selfLink);
+        console.log(item.spec.containers[0].name);
+        $('#baseUrl').val('ws://192.168.99.20');
+        $('#selfLink').val(item.metadata.selfLink);
+        $('#containerName').val(item.spec.containers[0].name);
+
+    }
+
 	function redirect(item){
 		console.log(item)
 		selection = item;
@@ -342,7 +352,12 @@
                     },
                     link: function($scope, element, attributes) {
                         element.css("display", "block");
-
+                        // $scope.baseUrl = "ws://192.168.99.20:8001";
+                        // $scope.selfLink = "/api/v1/namespaces/default/pods/busybox";
+                        // $scope.containerName = "busybox";
+                        // $scope.accessToken = "";
+                        // $scope.preventSocket = true;
+                        
                         function notify(item) {
                             var event = $scope.$emit("select", item);
                             if (attributes["selection"] === undefined && !event.defaultPrevented)

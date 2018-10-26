@@ -2,7 +2,7 @@
 <html class="no-js">
 <head>
     <meta charset="utf-8">
-    <title>Container Terminal Example</title>
+    <title> <%= title %></title>
     <meta name="viewport" content="width=device-width">
     <style>
         * { box-sizing: border-box; }
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css">
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly-additions.css">
     <link rel="stylesheet" href="bower_components/xterm.js-next/xterm.css">
-    <link rel="stylesheet" href="container-terminal.css">
+    <link rel="stylesheet" href="stylesheets/container-terminal.css">
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/xterm.js-next/xterm.js"></script>
     <script src="javascripts/container-terminal.js"></script>
@@ -25,7 +25,7 @@
 
     <kubernetes-container-terminal pod="selfLink" container="containerName" prevent="preventSocket" rows="rows" cols="cols"  screen-keys="true" autofocus="true">
     </kubernetes-container-terminal>
-
+    <!-- <%= title %> -->
     <div>
         <label>
             <span>Endpoint</span>
@@ -60,9 +60,14 @@
             })
 
             .run(function($rootScope) {
+                // $rootScope.baseUrl = <%= baseUrl %>;
+                // $rootScope.selfLink = <%= selfLink %>;
+                // $rootScope.containerName = <%= containerName %>;
+                // $rootScope.accessToken = "";
+                // $rootScope.preventSocket = true;
                 $rootScope.baseUrl = "ws://localhost:8080";
-                $rootScope.selfLink = "/api/v1/namespaces/default/pods/frontend-19kon";
-                $rootScope.containerName = "";
+                $rootScope.selfLink = "/api/v1/namespaces/default/pods/busybox";
+                $rootScope.containerName = "busybox";
                 $rootScope.accessToken = "";
                 $rootScope.preventSocket = true;
             })

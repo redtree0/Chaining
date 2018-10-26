@@ -94,16 +94,18 @@
 
                         var spinner = angular.element("<div class='spinner spinner-inverse hidden'>");
 
-                        var button = angular.element("<button class='btn btn-default fa fa-refresh'>");
+                        // var button = angular.element("<button class='btn btn-default fa fa-refresh'>");
+                        var button = angular.element(document.querySelector( '#reset' ));
+                        // console.log(button);
                         button.on("click", connect).attr("title", "Connect");
 
-                        element.append(angular.element("<div class='terminal-actions'>")
-                                            .append(spinner).append(button));
-
+                        // element.append((spinner)).append(button);
+                        // element.append(angular.element("<div class='terminal-actions'>")
+                                            // .append(spinner).append(button));
                         var alive = null;
                         var ws = null;
-                        var defaultCols = 80;
-                        var defaultRows = 24;
+                        var defaultCols = 60;
+                        var defaultRows = 32;
 
                         var term = new Terminal({
                             cols: scope.cols || defaultCols,
@@ -119,12 +121,12 @@
                             applicationCursor: true, // Needed for proper scrollback behavior in applications like vi
                             mouseEvents: true        // Needed for proper scrollback behavior in applications like vi
                         });
-
+                        
                         outer.empty();
                         term.open(outer[0]);
                         term.cursorHidden = true;
                         term.refresh(term.buffer.y, term.buffer.y);
-
+                        
                         term.on('data', function(data) {
                             if (ws && ws.readyState === 1)
                                 ws.send("0" + utf8_to_b64(data));
@@ -155,11 +157,20 @@
 
                         function connect() {
                             disconnect();
+                            if($('#baseUrl').val()){
+                                scope.baseUrl = $('#baseUrl').val();
+                            }
+                            if($('#selfLink').val()){
+                                scope.selfLink = $('#selfLink').val();
+                            }
+                            if($('#containerName').val()){
+                                scope.selfLink = $('#containerName').val();
+                            }
 
                             term.reset();
 
                             var url = "";
-
+                            console.log(scope)
                             var pod = scope.pod();
                             if (pod.metadata)
                                 url += pod.metadata.selfLink;

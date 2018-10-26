@@ -11,12 +11,17 @@ router.get('/', function(req, res, next) {
 router.get('/main', function(req, res, next) {
   res.render('main', {title : 'Chaining'})
 });
+
+router.get('/test', function(req, res, next) {
+  res.render('test', {title : 'Chaining'})
+});
+
 router.get('/graph', function(req, res, next) {
   res.render('topology-graph', {title : 'Chaining'})
 });
 
 router.get('/terminal', function(req, res, next) {
-  res.render('container-terminal', {title : 'Chaining'})
+  res.render('container-terminal', {'title' : 'Chaining' })
 });
 
 var controller = require('../controller');
