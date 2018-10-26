@@ -1,0 +1,28 @@
+- name: run the playbook tasks on the localhost
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    - name: Create a user directory.
+      become: yes
+      file:
+        path: "{{ user.path }}"
+        state: "directory"
+        recurse: "yes"
+        # owner: "vagrant"
+        # group: "vagrant"
+        mode: "0777"
+
+    - name: Check that {{ envfile }} exists
+      stat:
+        path: "{{ envfile }}"
+    - name: Check that {{ k8s_yaml }} exists
+      stat:
+        path: "{{ k8s_yaml }}"
+    
+    - name: Generate user ethereum yaml in ruby.
+      shell: ./eth "../{{ envfile }}" "../{{ k8s_yaml }}"
+      become: yes
+      args:
+         chdir: ./kuberneteth
+

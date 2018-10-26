@@ -14,6 +14,11 @@ router.get('/main', function(req, res, next) {
 router.get('/graph', function(req, res, next) {
   res.render('topology-graph', {title : 'Chaining'})
 });
+
+router.get('/terminal', function(req, res, next) {
+  res.render('container-terminal', {title : 'Chaining'})
+});
+
 var controller = require('../controller');
 router.get('/k8s.jsonp', function(req, res, next) {
     controller.getListk8s((k8s)=>{

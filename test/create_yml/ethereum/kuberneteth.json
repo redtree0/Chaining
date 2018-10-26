@@ -1,0 +1,56 @@
+{
+    "bootnode":{
+        "nodekeyhex":"3bed8e0fa771475049cddac0fcc20a6cf1005e271e2b12ef339f213218b2dbdb",
+        "verbosity":9,
+        "geth": {
+            "NodeP2P_ListenAddr":30301,
+            "NodeP2P_DiscoveryAddr":30303,
+            "Node_DataDir":"/etc/testnet/bootnode"
+        }
+        },
+        "nodes":[
+            {
+                "miner":{
+                    "k8s":{
+                        "nodePort_rpc":30001,
+                        "nodePort_ipc":30002,
+                        "replicas":1
+                    },
+                    "geth":{
+                        "Eth_Etherbase":"0x023e291a99d21c944a871adcc44561a58f99bdbc",
+                        "Eth_MinerThreads":1,
+                        "Node_UserIdent":"miner",
+                        "Node_DataDir":"/etc/testnet/miner",
+                        "Node_HTTPPort":8545,
+                        "Node_WSPort":8546,
+                        "NodeP2P_ListenAddr":30301,
+                        "NodeP2P_DiscoveryAddr":30303
+                    }
+                }
+            },{
+                "test" : {}
+            }
+       
+        ],
+    "monitor":{
+        "name":"monitor",
+        "verbosity":0,
+        "k8s":{
+            "nodePort":30007
+        }
+    },
+    "keystore":{
+        "name":"UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc",
+        "secret":false
+    },
+    "geth":{
+        "version":"stable",
+        "network":{
+            "id":1101,
+            "public":false
+        },
+        "difficulty":"0x400",
+        "NodeP2P_Netrestrict":"172.16.0.0/12",
+        "verbosity":3
+        }
+}

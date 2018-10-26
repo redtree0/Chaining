@@ -1,0 +1,478 @@
+# TODO
+# insert readiness checks
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keystore-config
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: keystore-config
+data:
+  UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc: |-
+    {
+        "address": "023e291a99d21c944a871adcc44561a58f99bdbc",
+        "crypto": {
+            "cipher": "aes-128-ctr",
+            "cipherparams": {
+                "iv": "57ef5312b9eb89d4a5d7f8cef6131987"
+            },
+            "ciphertext": "963839ae10dda6929a682c7e818b8c2af0c39f0eaeff7f1764a7d197e4a472a6",
+            "kdf": "scrypt",
+            "kdfparams": {
+                "dklen": 32,
+                "n": 262144,
+                "p": 1,
+                "r": 8,
+                "salt": "836823419b773fcb0f8708f6129c9a7ce4cc49d1b3997be604b1679542fd03f7"
+            },
+            "mac": "7d3d92f46bf39729dea5060421f98143c79b23f42a7e5a35793956c614985413"
+        },
+        "id": "e04ebdfa-a96a-4581-bb4d-fb8bd54837ae",
+        "version": 3
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gethconfig-miner
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: gethconfig-miner
+data:
+  gethconfig: |-
+    [Eth]
+    NetworkId = 1101
+    SyncMode = "fast"
+    LightPeers = 20
+    DatabaseCache = 128
+    Etherbase = "0x023e291a99d21c944a871adcc44561a58f99bdbc"
+    MinerGasPrice = 18000000000
+    EnablePreimageRecording = false
+    
+    [Eth.Ethash]
+    CacheDir = "ethash"
+    CachesInMem = 2
+    CachesOnDisk = 3
+    DatasetDir = "/root/.ethash"
+    DatasetsInMem = 1
+    DatasetsOnDisk = 2
+    PowMode = 0
+    
+    [Eth.TxPool]
+    NoLocals = false
+    Journal = "transactions.rlp"
+    Rejournal = 3600000000000
+    PriceLimit = 1
+    PriceBump = 10
+    AccountSlots = 16
+    GlobalSlots = 4096
+    AccountQueue = 64
+    GlobalQueue = 1024
+    Lifetime = 10800000000000
+    
+    [Eth.GPO]
+    Blocks = 10
+    Percentile = 50
+    
+    [Shh]
+    MaxMessageSize = 1048576
+    MinimumAcceptedPOW = 2e-01
+    
+    [Node]
+    UserIdent = "miner"
+    DataDir = "/etc/testnet/miner"
+    IPCPath = "/etc/testnet/miner/geth.ipc"
+    HTTPHost = "0.0.0.0"
+    HTTPPort = 8545
+    HTTPCors = ["*"]
+    HTTPVirtualHosts = ["*"]
+    HTTPModules = ["db", "eth", "net", "web3", "personal", "miner"]
+    WSHost = "0.0.0.0"
+    WSPort = 8546
+    WSModules = ["net", "web3", "eth", "shh"]
+    
+    [Node.P2P]
+    MaxPeers = 25
+    NoDiscovery = false
+    BootstrapNodes = []
+    BootstrapNodesV5 = []
+    StaticNodes = []
+    TrustedNodes = []
+    ListenAddr = ":30303"
+    EnableMsgEvents = false
+    
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitor-config
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: monitor-config
+data:
+  app.json: |-
+    [
+      {
+        "name"              : "miner",
+        "cwd"               : ".",
+        "script"            : "app.js",
+        "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+        "merge_logs"        : false,
+        "watch"             : false,
+        "exec_interpreter"  : "node",
+        "exec_mode"         : "fork_mode",
+        "env":
+        {
+          "NODE_ENV"        : "production",
+          "RPC_HOST"        : "miner-rpchost",
+          "RPC_PORT"        : "8545",
+          "LISTENING_PORT"  : "30303",
+          "INSTANCE_NAME"   : "miner",
+          "CONTACT_DETAILS" : "",
+          "WS_SERVER"       : "localhost:3001",
+          "WS_SECRET"       : "connectme",
+          "VERBOSITY"       : 0
+        }
+      }
+    ]
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genesis-config
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: genesis-config
+data:
+  Genesis-geth.json: |-
+    {
+        "config": {
+            "chainId": 1101,
+            "homesteadBlock": 0,
+            "eip155Block": 0,
+            "eip158Block": 0
+        },
+        "coinbase" : "0x0000000000000000000000000000000000000000",
+        "difficulty" : "0x400",
+        "extraData" : "0x",
+        "gasLimit" : "0x47e7c5",
+        "nonce" : "0x0000000000000042",
+        "mixhash" : "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "parentHash" : "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "timestamp" : "0x00",
+        "alloc" : {
+        }
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: miner-svc
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: miner-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: backend
+  type: NodePort
+  ports:
+    - name: miner-jsonrpc
+      protocol: TCP
+      port: 8545
+      targetPort: 8545
+      nodePort: 30001
+    - name: miner-wsrpc
+      protocol: TCP
+      port: 8546
+      targetPort: 8546
+    - name: miner-ipc-listen
+      protocol: UDP
+      port: 30301
+      targetPort: 30301
+    - name: miner-ipc-discovery
+      protocol: TCP
+      port: 30303
+      targetPort: 30303
+      nodePort: 30002
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geth-bootnode-svc
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-bootnode-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: backend
+  ports:
+    - name: geth-bootnode-ipc-discovery
+      protocol: UDP
+      port: 30303
+      targetPort: 30303
+
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: geth-boot-node-setup-pod
+  labels:
+    app: kuberneteth
+    name: bootnode-setup-pod
+spec:
+  template:
+    metadata:
+      labels:
+        app: kuberneteth
+        name: bootnode-setup-pod
+    spec:
+      containers:
+      - name: geth-boot-node-setup-container
+        image: mmeister/geth-node:bootv2
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cd /etc/testnet/bootnode;
+           echo \"enode://$(/bootnode -nodekeyhex 3bed8e0fa771475049cddac0fcc20a6cf1005e271e2b12ef339f213218b2dbdb -writeaddress)@$GETH_BOOTNODE_SVC_SERVICE_HOST:30303\" > enode.address;
+           set +x;
+           while true; do :; done;"
+        volumeMounts:
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+      volumes:
+      - name: geth-boot-node-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/bootnode
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: geth-boot-node-pod
+  labels:
+    app: kuberneteth
+    name: geth-bootnode-pod
+spec:
+  containers:
+  - name: geth-boot-node-container
+    image: mmeister/geth-node:bootv2
+    ports:
+      - containerPort: 30301
+      - containerPort: 30303
+        protocol: UDP
+    command: [ "sh" ]
+    args:
+    - "-c"
+    - "cd /etc/testnet/bootnode;
+       /geth --datadir /etc/testnet/bootnode init /etc/geth/genesis/Genesis-geth.json;
+       /bootnode --nodekeyhex 3bed8e0fa771475049cddac0fcc20a6cf1005e271e2b12ef339f213218b2dbdb --addr \":30303\" --nat any --netrestrict 172.16.0.0/12 --verbosity 9;"
+    volumeMounts:
+    - name: geth-boot-node-persistent-storage
+      mountPath: /etc/testnet/bootnode
+    - name: genesis-config-persistent-storage
+      mountPath: /etc/geth/genesis/Genesis-geth.json
+      subPath: Genesis-geth.json
+    - name: keystore-config-persistent-storage
+      mountPath: /etc/testnet/bootnode/keystore/UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+      subPath: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+  volumes:
+  - name: keystore-config-persistent-storage
+    configMap:
+      name: keystore-config
+      items:
+      - key: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+        path: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+  - name: geth-boot-node-persistent-storage
+    hostPath:
+      path: /var/lib/docker/geth-storage/bootnode
+  - name: genesis-config-persistent-storage
+    configMap:
+      name: genesis-config
+      items:
+      - key: Genesis-geth.json
+        path: Genesis-geth.json
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: geth-miner-deployment
+spec:
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      name: geth-miner-deployment
+      labels:
+        app: kuberneteth
+        tier: backend
+        name: miner-deployment
+    spec:
+      initContainers:
+      - name: miner-genesis-init-container
+        image: ethereum/client-go:stable
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "if [ ! -f /etc/testnet/miner/genesis_created ]; then
+             /usr/local/bin/geth --datadir /etc/testnet/miner init /etc/geth/genesis/Genesis-geth.json;
+             touch /etc/testnet/miner/genesis_created;
+           fi;"
+        volumeMounts:
+        - name: miner-persistent-storage
+          mountPath: /etc/testnet/miner
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+        - name: genesis-config-persistent-storage
+          mountPath: /etc/geth/genesis/Genesis-geth.json
+          subPath: Genesis-geth.json
+      containers:
+      - name: miner-container
+        image: ethereum/client-go:stable
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "mkdir -p /etc/geth/miner;
+           cp /etc/gethconfigmap/miner/gethconfig.toml /etc/geth/miner;
+           ENODE=$(cat /etc/testnet/bootnode/enode.address);
+           ENODE_ESC=$(echo $ENODE | sed 's@//@\\\\/\\\\/@g');
+           sed -i \"s/BootstrapNodes = \\[\\]/BootstrapNodes = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/miner/gethconfig.toml;
+           sed -i \"s/BootstrapNodesV5 = \\[\\]/BootstrapNodesV5 = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/miner/gethconfig.toml;
+           /usr/local/bin/geth \
+           --mine \
+           --netrestrict 172.16.0.0/12 \
+           --verbosity 3  \
+           --config /etc/geth/miner/gethconfig.toml;"
+        ports:
+          - containerPort: 8545
+          - containerPort: 8546
+          - containerPort: 30301
+            protocol: UDP
+          - containerPort: 30303
+        volumeMounts:
+        - name: miner-persistent-storage
+          mountPath: /etc/testnet/miner
+        - name: miner-config-persistent-storage
+          mountPath: /etc/gethconfigmap/miner
+        - name: keystore-config-persistent-storage
+          mountPath: /etc/testnet/miner/keystore/UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+          subPath: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+      volumes:
+      - name: keystore-config-persistent-storage
+        configMap:
+          name: keystore-config
+          items:
+          - key: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+            path: UTC--2017-04-06T08-30-06.659191254Z--023e291a99d21c944a871adcc44561a58f99bdbc
+      - name: geth-boot-node-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/bootnode
+      - name: genesis-config-persistent-storage
+        configMap:
+          name: genesis-config
+          items:
+          - key: Genesis-geth.json
+            path: Genesis-geth.json
+      - name: miner-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/miner
+      - name: miner-config-persistent-storage
+        configMap:
+          name: gethconfig-miner
+          items:
+          - key: gethconfig
+            path: gethconfig.toml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor-svc
+  labels:
+    app: kuberneteth
+    tier: frontend
+    name: monitor-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: frontend
+  ports:
+    - name: monitor-port
+      protocol: TCP
+      port: 3001
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monitor-deployment
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      name: monitor-deployment
+      labels:
+        app: kuberneteth
+        tier: frontend
+        name: monitor-deployment
+    spec:
+      initContainers:
+      - name: monitor-init-container
+        image: mmeister/eth-net-intelligence-api
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cp -r /eth-net-intelligence-api/* /ethmonitor;
+           cp /monitor-configmap/app.json /ethmonitor/app.json;
+           sed -i \"s/miner-rpchost/$MINER_SVC_SERVICE_HOST/g\" /ethmonitor/app.json;
+           exit 0;"
+        volumeMounts:
+        - name: monitor-configmap-volume
+          mountPath: /monitor-configmap/app.json
+          subPath: app.json
+          # we need to mount an extra volume to be able to change a value in the configmap
+        - name: monitor-config-persistent-storage
+          mountPath: /ethmonitor
+      containers:
+      - name: eth-netstats-container
+        image: mmeister/eth-netstats
+        ports:
+          - containerPort: 3001
+        env:
+        - name: WS_SECRET
+          value: "connectme"
+        - name: PORT
+          value: "3001"
+      - name: eth-net-intelligence-api-container
+        image: mmeister/eth-net-intelligence-api
+        volumeMounts:
+        - name: monitor-config-persistent-storage
+          mountPath: /eth-net-intelligence-api/app.json
+          subPath: app.json
+      volumes:
+      - name: monitor-configmap-volume
+        configMap:
+          name: monitor-config
+          items:
+          - key: app.json
+            path: app.json
+      - name: monitor-config-persistent-storage
+        hostPath:
+          path: /var/lib/docker/ethmonitor

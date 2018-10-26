@@ -30,6 +30,24 @@
 
     function topology_graph(selector, notify, options) {
         var outer = d3.select(selector);
+        var menu = [
+            {
+                title: 'Go to the Page',
+                action: function(element, d, i) {
+                    
+                    
+                    console.log(element);
+                    redirect(element.item);
+                }
+            },
+            {
+                title: 'Exec the container',
+                action: function(element, d, i) {
+                    
+                    
+                }
+            }
+        ];
 
         /* Kinds of objects to show */
         var kinds = null;
@@ -65,7 +83,8 @@
         var svg = outer.append("svg")
             .attr("viewBox", "0 0 1600 1200")
             .attr("preserveAspectRatio", "xMidYMid meet")
-            .attr("class", "kube-topology");
+            .attr("class", "kube-topology")
+           
 
         var vertices = d3.select();
         var edges = d3.select();
@@ -74,8 +93,8 @@
             edges.attr("x1", function(d) { return d.source.x; })
                  .attr("y1", function(d) { return d.source.y; })
                  .attr("x2", function(d) { return d.target.x; })
-                 .attr("y2", function(d) { return d.target.y; });
-
+                 .attr("y2", function(d) { return d.target.y; })
+             
             vertices
                 .attr("cx", function(d) {
                     d.x = d.fixed ? d.x : Math.max(radius, Math.min(width - radius, d.x));
@@ -87,7 +106,9 @@
                 })
                 .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
-                });
+                })
+                .on('contextmenu', d3.contextMenu(menu));
+                 
         });
 
         drag
@@ -128,7 +149,8 @@
                 if (!d3.select(d3.event.target).datum()) {
 	            notify(null);
                 }
-            });
+            })
+           
 	function redirect(item){
 		console.log(item)
 		selection = item;
